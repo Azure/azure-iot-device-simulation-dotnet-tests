@@ -35,7 +35,7 @@ All the containers need to be started before the tests can be run/debug in Visua
 Ex:
 ```
 cd scripts
-./pcsconfig.sh start
+./devicesimulation.sh start
 ```
 
 ### Build and run tests

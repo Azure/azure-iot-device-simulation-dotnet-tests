@@ -14,24 +14,16 @@ chmod ugo+x ./scripts/build
 chmod ugo+x ./scripts/git/setup
 chmod ugo+x ./scripts/git/*.sh
 chmod ugo+x ./scripts/devicesimulation.sh
-chmod ugo+x ./scripts/pcsconfig.sh
 chmod ugo+x ./scripts/storageadapter.sh
-chmod ugo+x ./scripts/telemetry.sh
-chmod ugo+x ./scripts/telemetry-agent.sh
-chmod ugo+x ./StorageAdapter/run.sh
-chmod ugo+x ./PcsConfig/run.sh
 chmod ugo+x ./DeviceSimulation/run.sh
+chmod ugo+x ./StorageAdapter/run.sh
 
 git update-index --chmod=+x ./scripts/build
 git update-index --chmod=+x ./scripts/git/setup
 git update-index --chmod=+x ./scripts/git/*.sh
 git update-index --chmod=+x ./scripts/devicesimulation.sh
-git update-index --chmod=+x ./scripts/pcsconfig.sh
 git update-index --chmod=+x ./scripts/storageadapter.sh
-git update-index --chmod=+x ./scripts/telemetry.sh
-git update-index --chmod=+x ./scripts/telemetry-agent.sh
-git update-index --chmod=+x ./StorageAdapter/run.sh
-git update-index --chmod=+x ./PcsConfig/run.sh
 git update-index --chmod=+x ./DeviceSimulation/run.sh
+git update-index --chmod=+x ./StorageAdapter/run.sh
 
 set +e

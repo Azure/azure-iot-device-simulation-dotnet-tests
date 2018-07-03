@@ -8,9 +8,6 @@
 scripts/build text eol=lf
 scripts/git/setup text eol=lf
 scripts/devicesimulation.sh text eol=lf
-scripts/pcsconfig.sh text eol=lf
 scripts/storageadapter.sh text eol=lf
-scripts/telemetry.sh text eol=lf
-StorageAdapter/run.sh text eol=lf
 DeviceSimulation/run.sh text eol=lf
-PcsConfig/run.sh text eol=lf
+StorageAdapter/run.sh text eol=lf

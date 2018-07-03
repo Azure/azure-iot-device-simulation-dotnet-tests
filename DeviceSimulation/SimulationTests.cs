@@ -7,7 +7,7 @@ namespace DeviceSimulation
     public class SimulationTests
     {
         private readonly IHttpClient httpClient;
-        private const string DS_ADDRESS = "http://localhost:9003/v1";
+        private const string DS_ADDRESS = "http://127.0.0.1:9003/v1";
 
         public SimulationTests()
         {

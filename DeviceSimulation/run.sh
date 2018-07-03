@@ -14,10 +14,8 @@ start_containers() {
     header2 "$TEST_SUITE - Starting services..."
 
     cd $APP_HOME
-    ./scripts/storageadapter.sh start
-    ./scripts/pcsconfig.sh start
-    ./scripts/telemetry.sh start
     ./scripts/devicesimulation.sh start
+    ./scripts/storageadapter.sh start
     docker ps -a
 }
 
@@ -26,10 +24,8 @@ stop_containers() {
 
     cd $APP_HOME
     docker ps -a
-    ./scripts/storageadapter.sh stop
-    ./scripts/pcsconfig.sh stop
-    ./scripts/telemetry.sh stop
     ./scripts/devicesimulation.sh stop
+    ./scripts/storageadapter.sh stop
 }
 
 run_tests() {
