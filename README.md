@@ -2,11 +2,11 @@
 [![Issues][issues-badge]][issues-url]
 [![Gitter][gitter-badge]][gitter-url]
 
-Azure IoT Remote Monitoring Tests
+Azure IoT Device Simulation Tests
 =================================
 
 This repository contains a set of functional tests periodically executed
-on Microsoft Azure IoT Remote Monitoring solution.
+on Microsoft Azure IoT Device Simulation solution.
 
 Dependencies
 ============
