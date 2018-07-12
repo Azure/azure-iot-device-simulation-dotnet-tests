@@ -52,7 +52,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Create_Default_Simulation()
         {
-            this.Should_Delete_Simulation();
+            this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
                 'DeviceModels': [   
@@ -72,7 +72,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Create_SimulatedDevice()
         {
-            this.Should_Delete_Simulation();
+            this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
                 'DeviceModels': [   
@@ -97,7 +97,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Upgrade_Firmware_On_SimulatedDevice()
         {
-            this.Should_Delete_Simulation();
+            this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
                 'DeviceModels': [   
@@ -125,7 +125,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Reboot_SimulatedDevice()
         {
-            this.Should_Delete_Simulation();
+            this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
                 'DeviceModels': [   
@@ -212,7 +212,7 @@ namespace DeviceSimulation
             Assert.False((bool)jsonResponse["Enabled"]);
         }
 
-        private void Should_Delete_Simulation()
+        private void Should_Delete_Existing_Simulation()
         {
             var request = new HttpRequest(DS_ADDRESS + "/simulations/1");
             var response = this.httpClient.DeleteAsync(request).Result;
