@@ -18,7 +18,7 @@ namespace DeviceSimulation
         private readonly IHttpClient httpClient;
         private readonly RegistryManager registry;
         private const string DS_ADDRESS = "http://localhost:9003/v1";
-        private const string IOTHUB_CONNECTION_STRING = "HostName=deviceSimulationMq.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=8uc9im6x5uIt53ouhMKUbPWlY8wGmmijSbsohPeBdgQ=";
+        private const string IOTHUB_CONNECTION_STRING = "HostName=iothub-gi6bx.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=ncS4YgSWTp85ESqCpmkzN99WcWlRl0stMJTu3WfrR10=";
         private const string PATCH_SIMULATION = "http://localhost:9003/v1/simulations/1";
         public SimulationTests()
         {
@@ -92,14 +92,6 @@ namespace DeviceSimulation
             RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
             Twin dev1 = await registry.GetTwinAsync("truck-01.0");
             Assert.True(dev1.Tags["IsSimulated"] == 'Y');
-        }
-
-        [Fact, Trait("Type", "IntegrationTest")]
-        public void Should_Delete_Simulation()
-        {
-            var request = new HttpRequest(DS_ADDRESS + "/simulations/1");
-            var response = this.httpClient.DeleteAsync(request).Result;
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
@@ -219,6 +211,15 @@ namespace DeviceSimulation
 
             Assert.False((bool)jsonResponse["Enabled"]);
         }
+
+        private void Should_Delete_Simulation()
+        {
+            var request = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var response = this.httpClient.DeleteAsync(request).Result;
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+
 
     }
 }
