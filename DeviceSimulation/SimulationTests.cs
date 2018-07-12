@@ -1,16 +1,15 @@
-﻿using System.Net;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Helpers.Http;
-using Xunit;
+using Microsoft.Azure.Devices;
+using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using Microsoft.Azure.Devices;
-using System.Threading.Tasks;
-using System;
-using Microsoft.Azure.Devices.Shared;
-using System.Threading;
-using System.Text;
-using System.IO;
+using Xunit;
 
 namespace DeviceSimulation
 {
@@ -19,7 +18,7 @@ namespace DeviceSimulation
         private readonly IHttpClient httpClient;
         private readonly RegistryManager registry;
         private const string DS_ADDRESS = "http://localhost:9003/v1";
-        private const string IOTHUB_CONNECTION_STRING = "HostName=SaiDeviceSimulation.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+dqkraJnTFZjEylsZLRfJCh3Jo8DhOpQ6NOoCAlSWCE=";
+        private const string IOTHUB_CONNECTION_STRING = "HostName=deviceSimulationMq.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=8uc9im6x5uIt53ouhMKUbPWlY8wGmmijSbsohPeBdgQ=";
         private const string PATCH_SIMULATION = "http://localhost:9003/v1/simulations/1";
         public SimulationTests()
         {
