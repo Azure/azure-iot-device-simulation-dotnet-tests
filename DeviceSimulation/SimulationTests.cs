@@ -52,6 +52,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Create_Default_Simulation()
         {
+            //delete the simulation that is already running
             this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -72,6 +73,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Create_SimulatedDevice()
         {
+            //delete the simulation that is already running
             this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -97,6 +99,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Upgrade_Firmware_On_SimulatedDevice()
         {
+            //delete the simulation that is already running
             this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -125,6 +128,7 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Reboot_SimulatedDevice()
         {
+            //delete the simulation that is already running
             this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
