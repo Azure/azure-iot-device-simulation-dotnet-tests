@@ -29,7 +29,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + "/devicemodels");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -152,7 +151,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/devicemodels/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -218,7 +216,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/devicemodels/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -294,7 +291,7 @@ namespace DeviceSimulation
         /// valid protocol
         /// </summary>
         [Fact]
-        public void Should_Return_Badrequest_With_Invalid_Protocol()
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Invalid_Protocol()
         {
             // Arrage
             var deviceModelWithInvaildProtocol = JObject.Parse(@"{  
@@ -327,6 +324,20 @@ namespace DeviceSimulation
                 'Properties': {}
             }");
 
+            // Act
+            var response = this.CreateDeviceModel(deviceModelWithInvaildProtocol);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Simulation service should return bad request when create device model without protocol
+        /// </summary>
+        [Fact]
+        public void Should_Return_Badrequest_When_When_Create_Device_Model_Without_Protocol()
+        {
+            // Arrage
             var deviceModelWithoutProtocol = JObject.Parse(@"{  
                 'ETag': 'etag',
                 'Name': 'chiller',
@@ -357,12 +368,10 @@ namespace DeviceSimulation
             }");
 
             // Act
-            var response = this.CreateDeviceModel(deviceModelWithInvaildProtocol);
-            var response_1 = this.CreateDeviceModel(deviceModelWithoutProtocol);
+            var response = this.CreateDeviceModel(deviceModelWithoutProtocol);
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response_1.StatusCode);
         }
 
         /// <summary>
@@ -370,7 +379,7 @@ namespace DeviceSimulation
         /// valid type
         /// </summary>
         [Fact]
-        public void Should_Return_Badrequest_With_Invalid_Type()
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Invalid_Type()
         {
             // Arrage
             var deviceModelWithInvaildType = JObject.Parse(@"{  
@@ -411,11 +420,10 @@ namespace DeviceSimulation
         }
 
         /// <summary>
-        /// Simulation service should return bad request when failed to provide
-        /// valid telemetry
+        /// Simulation service should return bad request when upsert with zero telemetry
         /// </summary>
         [Fact]
-        public void Should_Return_Badrequest_With_Invalid_Telemetry()
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Zero_Telemetry()
         {
             // Arrage
             var zeroTelemetry = JObject.Parse(@"{  
@@ -435,6 +443,21 @@ namespace DeviceSimulation
                 'Properties': {}
             }");
 
+            // Act
+            var response = this.CreateDeviceModel(zeroTelemetry);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Simulation service should return bad request when failed to provide
+        /// valid interval in telemetry
+        /// </summary>
+        [Fact]
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Invalid_Interval()
+        {
+            // Arrage
             var invalidInterval = JObject.Parse(@"{  
                 'ETag': 'etag',
                 'Name': 'chiller',
@@ -465,6 +488,21 @@ namespace DeviceSimulation
                 'Properties': {}
             }");
 
+            // Act
+            var response = this.CreateDeviceModel(invalidInterval);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Simulation service should return bad request when failed to provide
+        /// valid Mmessage template in telemetry
+        /// </summary>
+        [Fact]
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Invalid_Message_Template()
+        {
+            // Arrage
             var invalidMessageTemplate = JObject.Parse(@"{  
                 'ETag': 'etag',
                 'Name': 'chiller',
@@ -495,6 +533,21 @@ namespace DeviceSimulation
                 'Properties': {}
             }");
 
+            // Act
+            var response = this.CreateDeviceModel(invalidMessageTemplate);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Simulation service should return bad request when failed to provide
+        /// valid Mmessage schema in telemetry
+        /// </summary>
+        [Fact]
+        public void Should_Return_Badrequest_When_Create_Device_Model_With_Invalid_Message_Schema()
+        {
+            // Arrage
             var invalidMessageSchema = JObject.Parse(@"{  
                 'ETag': 'etag',
                 'Name': 'chiller',
@@ -519,16 +572,10 @@ namespace DeviceSimulation
             }");
 
             // Act
-            var response = this.CreateDeviceModel(zeroTelemetry);
-            var response_1 = this.CreateDeviceModel(invalidInterval);
-            var response_2 = this.CreateDeviceModel(invalidMessageTemplate);
-            var response_3 = this.CreateDeviceModel(invalidMessageSchema);
+            var response = this.CreateDeviceModel(invalidMessageSchema);
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response_1.StatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response_2.StatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response_3.StatusCode);
         }
 
         /// <summary>
@@ -573,7 +620,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/devicemodels/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.DeleteAsync(request).Result;
 
             // Assert
@@ -592,7 +638,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/devicemodels/{stockModelId}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.DeleteAsync(request).Result;
 
             // Assert
@@ -602,7 +647,6 @@ namespace DeviceSimulation
         private IHttpResponse CreateDeviceModel(JObject deviceModel)
         {
             var request = new HttpRequest(DS_ADDRESS + "/devicemodels");
-            request.AddHeader("Content-Type", "application/json");
             request.SetContent(deviceModel);
 
             return this.httpClient.PostAsync(request).Result;

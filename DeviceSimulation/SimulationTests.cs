@@ -27,7 +27,6 @@ namespace DeviceSimulation
         {
             // Act
             var request = new HttpRequest(DS_ADDRESS + "/status");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -38,11 +37,10 @@ namespace DeviceSimulation
         /// Simulation service should return a list of simulations
         /// </summary>
         [Fact]
-        public void Should_Return_A_List_Of_Simulations()
+        public void Should_Get_A_List_Of_Simulations()
         {
             // Act
             var request = new HttpRequest(DS_ADDRESS + "/simulations");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -61,11 +59,11 @@ namespace DeviceSimulation
         /// Simulation service should return default simulation
         /// </summary>
         [Fact]
-        public void Should_Return_Default_Simulation()
+        public void Should_Get_Default_Simulation()
         {
             // Arrange
+            const string DEFAULT_SIMULATION_ID = "1";
             var request = new HttpRequest(DS_ADDRESS + "/simulations/1");
-            request.AddHeader("X-Foo", "Bar");
 
             // Act
             var response = this.httpClient.GetAsync(request).Result;
@@ -84,7 +82,7 @@ namespace DeviceSimulation
             bool enabled = (bool)jEnabled;
 
             Assert.True(jsonResponse.HasValues);
-            Assert.Equal("1", id);
+            Assert.Equal(DEFAULT_SIMULATION_ID, id);
             Assert.False(string.IsNullOrEmpty(etag));
             Assert.True(jDeviceModels.HasValues);
             Assert.False(enabled);
@@ -145,7 +143,7 @@ namespace DeviceSimulation
         /// Simulation service should able to retrieve a simulation by id
         /// </summary>
         [Fact]
-        public void Should_Return_A_Simulation_By_Id()
+        public void Should_Get_A_Simulation_By_Id()
         {
             // Arrage
             var simulation = JObject.Parse(@"{  
@@ -168,7 +166,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/simulations/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -227,7 +224,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/simulations/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -437,7 +433,6 @@ namespace DeviceSimulation
 
             // Act
             var request = new HttpRequest(DS_ADDRESS + $"/simulations/{id}");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.DeleteAsync(request).Result;
 
             // Assert
@@ -448,7 +443,6 @@ namespace DeviceSimulation
         {
 
             var request = new HttpRequest(DS_ADDRESS + "/simulations");
-            request.AddHeader("Content-Type", "application/json");
             request.SetContent(simulation);
 
             return this.httpClient.PostAsync(request).Result;
