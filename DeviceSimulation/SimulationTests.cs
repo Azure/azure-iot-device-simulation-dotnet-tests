@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Helpers.Http;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -18,11 +19,16 @@ namespace DeviceSimulation
         private readonly IHttpClient httpClient;
         private readonly RegistryManager registry;
         private const string DS_ADDRESS = "http://localhost:9003/v1";
-        private const string IOTHUB_CONNECTION_STRING = "HostName=SaiDeviceSimulation.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=+dqkraJnTFZjEylsZLRfJCh3Jo8DhOpQ6NOoCAlSWCE=";
+        private readonly string IOTHUB_CONNECTION_STRING;
         private const string SIMULATION_URL = "http://localhost:9003/v1/simulations/1";
         private const int WAIT_TIME = 15000;
         public SimulationTests()
         {
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("settings.json")
+                .AddEnvironmentVariables()
+                .Build();
+            this.IOTHUB_CONNECTION_STRING = config["PCS_IOTHUB_CONNSTRING"];
             this.httpClient = new HttpClient();
         }
 
@@ -191,36 +197,13 @@ namespace DeviceSimulation
         public void Should_Start_Given_Simulation()
         {
             //Arrange
-            this.Should_Delete_Existing_Simulation();
-            var simulation = JObject.Parse(@"{   
-                'Enabled': true, 
-                'DeviceModels': [   
-                    {   
-                        'Id': 'truck-01', 
-                        'Count': 5 
-                    } 
-                ]
-            }");
-            var createSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations");
-            createSimulationRequest.SetContent(simulation);
-            var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
-            Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
-
-            var currentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
-            var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
-            Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
-            JObject JsonResponse = JObject.Parse(currentSimulationResponse.Content);
-
-            string ETag = (string)JsonResponse["ETag"];
+            string ETag = this.get_ETag_Of_Running_Simulation();
 
             var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': true" + "}";
             var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
 
             //Act
-            var startSimulationRequest = (HttpWebRequest)WebRequest.Create("http://localhost:9003/v1/simulations/1");
-            startSimulationRequest.Method = "PATCH";
-            startSimulationRequest.ContentLength = simulationContentByteArray.Length;
-            startSimulationRequest.ContentType = "application/json";
+            HttpWebRequest startSimulationRequest = this.Create_Simulation_Request(simulationContentByteArray);
             Stream dataStream = startSimulationRequest.GetRequestStream();
             dataStream.Write(simulationContentByteArray, 0, simulationContentByteArray.Length);
             dataStream.Close();
@@ -240,6 +223,30 @@ namespace DeviceSimulation
         public void Should_Stop_Given_Simulation()
         {
             //Arrange
+            string ETag = this.get_ETag_Of_Running_Simulation();
+
+            var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': false" + "}";
+            var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
+
+            //Act
+            HttpWebRequest stopSimulationRequest = this.Create_Simulation_Request(simulationContentByteArray);
+            Stream dataStream = stopSimulationRequest.GetRequestStream();
+            dataStream.Write(simulationContentByteArray, 0, simulationContentByteArray.Length);
+            dataStream.Close();
+            var stopSimulationResponse = (HttpWebResponse)stopSimulationRequest.GetResponse();
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, stopSimulationResponse.StatusCode);
+
+            var verificationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
+            JObject jsonResponse = JObject.Parse(verificationResponse.Content);
+
+            Assert.False((bool)jsonResponse["Enabled"]);
+        }
+
+        private string get_ETag_Of_Running_Simulation()
+        {
             this.Should_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -254,34 +261,14 @@ namespace DeviceSimulation
             createSimulationRequest.SetContent(simulation);
             var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
+
             var currentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
             var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
             JObject JsonResponse = JObject.Parse(currentSimulationResponse.Content);
 
             string ETag = (string)JsonResponse["ETag"];
-
-            var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': false" + "}";
-            var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
-
-            //Act
-            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(SIMULATION_URL);
-            startSimulationRequest.Method = "PATCH";
-            startSimulationRequest.ContentLength = simulationContentByteArray.Length;
-            startSimulationRequest.ContentType = "application/json";
-            Stream dataStream = startSimulationRequest.GetRequestStream();
-            dataStream.Write(simulationContentByteArray, 0, simulationContentByteArray.Length);
-            dataStream.Close();
-            var startSimulationResponse = (HttpWebResponse)startSimulationRequest.GetResponse();
-
-            //Assert
-            Assert.Equal(HttpStatusCode.OK, startSimulationResponse.StatusCode);
-
-            var verificationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
-            var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
-            JObject jsonResponse = JObject.Parse(verificationResponse.Content);
-
-            Assert.False((bool)jsonResponse["Enabled"]);
+            return ETag;
         }
 
         private void Should_Delete_Existing_Simulation()
@@ -299,6 +286,14 @@ namespace DeviceSimulation
                 Assert.Equal(HttpStatusCode.NotFound, getCurrentSimulationResponse.StatusCode);
             }
             
+        }
+        public HttpWebRequest Create_Simulation_Request(byte[] simulationContentByteArray)
+        {
+            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(SIMULATION_URL);
+            startSimulationRequest.Method = "PATCH";
+            startSimulationRequest.ContentLength = simulationContentByteArray.Length;
+            startSimulationRequest.ContentType = "application/json";
+            return startSimulationRequest;
         }
     }
 }
