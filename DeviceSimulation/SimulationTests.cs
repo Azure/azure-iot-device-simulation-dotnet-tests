@@ -273,6 +273,8 @@ namespace DeviceSimulation
         {
             var runningSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var runningSimulationResponse = this.httpClient.GetAsync(runningSimulationRequest).Result;
+            
+            //delete current simulation only if it exists
             if(runningSimulationResponse.StatusCode == HttpStatusCode.OK)
             {
                 var deleteCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
