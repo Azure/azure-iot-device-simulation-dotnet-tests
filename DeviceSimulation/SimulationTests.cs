@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Helpers;
 using Helpers.Http;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
@@ -18,10 +19,7 @@ namespace DeviceSimulation
     {
         private readonly IHttpClient httpClient;
         private readonly RegistryManager registry;
-        private const string DS_ADDRESS = "http://localhost:9003/v1";
         private readonly string IOTHUB_CONNECTION_STRING;
-        private const string SIMULATION_URL = "http://localhost:9003/v1/simulations/1";
-        private const int WAIT_TIME = 15000;
         public SimulationTests()
         {
             var config = new ConfigurationBuilder()
@@ -40,7 +38,7 @@ namespace DeviceSimulation
         public void Should_Return_OK_Status()
         {
             // Act
-            var request = new HttpRequest(DS_ADDRESS + "/status");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/status");
             request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
@@ -62,13 +60,13 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var createSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations");
+            var createSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             createSimulationRequest.SetContent(simulation);
             var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
 
             //Act
-            var getCurrentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
 
             //Assert
@@ -92,13 +90,13 @@ namespace DeviceSimulation
             }");
 
             //Act
-            var request = new HttpRequest(DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var getCurrentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
         }
@@ -119,13 +117,13 @@ namespace DeviceSimulation
             }");
 
             //Act
-            var request = new HttpRequest(DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Thread.Sleep(WAIT_TIME);
+            Thread.Sleep(Constants.WAIT_TIME);
             RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
             Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
             Assert.True(deviceTwin != null && deviceTwin.Tags["IsSimulated"] == 'Y');
@@ -145,12 +143,12 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var request = new HttpRequest(DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            Thread.Sleep(WAIT_TIME);
+            Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
             ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
@@ -176,12 +174,12 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var request = new HttpRequest(DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            Thread.Sleep(WAIT_TIME);
+            Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
             ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
@@ -212,7 +210,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, startSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var verificationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
@@ -238,7 +236,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, stopSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var verificationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
@@ -257,12 +255,12 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var createSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations");
+            var createSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             createSimulationRequest.SetContent(simulation);
             var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
 
-            var currentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var currentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
             JObject JsonResponse = JObject.Parse(currentSimulationResponse.Content);
@@ -273,15 +271,15 @@ namespace DeviceSimulation
 
         private void Should_Delete_Existing_Simulation()
         {
-            var runningSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+            var runningSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var runningSimulationResponse = this.httpClient.GetAsync(runningSimulationRequest).Result;
             if(runningSimulationResponse.StatusCode == HttpStatusCode.OK)
             {
-                var deleteCurrentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+                var deleteCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
                 var deleteCurrentSimulationResponse = this.httpClient.DeleteAsync(deleteCurrentSimulationRequest).Result;
                 Assert.Equal(HttpStatusCode.OK, deleteCurrentSimulationResponse.StatusCode);
                 
-                var getCurrentSimulationRequest = new HttpRequest(DS_ADDRESS + "/simulations/1");
+                var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
                 var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
                 Assert.Equal(HttpStatusCode.NotFound, getCurrentSimulationResponse.StatusCode);
             }
@@ -289,7 +287,7 @@ namespace DeviceSimulation
         }
         public HttpWebRequest Create_Simulation_Request(byte[] simulationContentByteArray)
         {
-            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(SIMULATION_URL);
+            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(Constants.SIMULATION_URL);
             startSimulationRequest.Method = "PATCH";
             startSimulationRequest.ContentLength = simulationContentByteArray.Length;
             startSimulationRequest.ContentType = "application/json";
