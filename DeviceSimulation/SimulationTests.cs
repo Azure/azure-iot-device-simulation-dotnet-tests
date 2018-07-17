@@ -68,9 +68,10 @@ namespace DeviceSimulation
             //Act
             var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
+            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
 
             //Assert
-            Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
+            Assert.True(HttpStatusCode.OK == getCurrentSimulationResponse.StatusCode && (bool)jsonResponse["Enabled"] && (int)jsonResponse["Id"] == 1);
 
         }
 
@@ -98,7 +99,9 @@ namespace DeviceSimulation
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
-            Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
+            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
+
+            Assert.True(HttpStatusCode.OK == getCurrentSimulationResponse.StatusCode && (int)jsonResponse["Id"] == 1);
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
