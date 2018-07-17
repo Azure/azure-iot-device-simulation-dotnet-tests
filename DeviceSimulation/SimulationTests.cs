@@ -163,8 +163,8 @@ namespace DeviceSimulation
             CloudToDeviceMethodResult firmwareUpdateResponse = await firmwareUpgradeMethodResult.ConfigureAwait(false);
 
             //Assert
-            Twin deviceTwin1 = await registry.GetTwinAsync("truck-01.0");
-            Assert.True(deviceTwin1.Properties.Reported.Contains("FirmwareUpdateStatus"));
+            Twin updatedDevice = await registry.GetTwinAsync("truck-01.0");
+            Assert.True(updatedDevice.Properties.Reported.Contains("FirmwareUpdateStatus"));
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
@@ -196,6 +196,8 @@ namespace DeviceSimulation
 
             //Assert
             Assert.Equal(200, rebootResponse.Status);
+            //TODO
+            //Currently, there is no property of the device that indicates a reboot happened. We have to handle this in the future. 
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
