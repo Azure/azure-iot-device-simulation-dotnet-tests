@@ -154,13 +154,17 @@ namespace DeviceSimulation
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
+            RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
             ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
             Task<CloudToDeviceMethodResult> firmwareUpgradeMethodResult = serviceClient.InvokeDeviceMethodAsync("truck-01.0",
                 new CloudToDeviceMethod("FirmwareUpdate"));
+            Thread.Sleep(Constants.WAIT_TIME);
             CloudToDeviceMethodResult firmwareUpdateResponse = await firmwareUpgradeMethodResult.ConfigureAwait(false);
 
             //Assert
-            Assert.Equal(200, firmwareUpdateResponse.Status);
+            Twin deviceTwin1 = await registry.GetTwinAsync("truck-01.0");
+            Assert.True(deviceTwin1.Properties.Reported.Contains("FirmwareUpdateStatus"));
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
