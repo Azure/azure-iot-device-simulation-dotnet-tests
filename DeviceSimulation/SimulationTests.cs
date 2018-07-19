@@ -50,20 +50,7 @@ namespace DeviceSimulation
         public void Should_Return_Currently_Running_Simulation()
         {
             //Arrange
-            this.Try_Delete_Existing_Simulation();
-            var simulation = JObject.Parse(@"{   
-                'Enabled': true, 
-                'DeviceModels': [   
-                    {   
-                        'Id': 'truck-01', 
-                        'Count': 5 
-                    } 
-                ]
-            }");
-            var createSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
-            createSimulationRequest.SetContent(simulation);
-            var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
-            Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
+            this.Should_Start_Given_Simulation();
 
             //Act
             var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
@@ -73,7 +60,6 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
             Assert.True((bool)jsonResponse["Enabled"]);
-            Assert.Equal(1, (int)jsonResponse["Id"]);
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
@@ -92,7 +78,7 @@ namespace DeviceSimulation
             }");
 
             //Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations?template=default");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
 
@@ -103,13 +89,13 @@ namespace DeviceSimulation
             JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
 
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
-            Assert.True((int)jsonResponse["Id"] == 1);
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
         public async void Should_Create_SimulatedDevice()
         {
             //Arrange
+            Thread.Sleep(Constants.WAIT_TIME);
             this.Try_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -122,7 +108,7 @@ namespace DeviceSimulation
             }");
 
             //Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations?template=default");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
 
@@ -139,6 +125,7 @@ namespace DeviceSimulation
         public async void Should_Upgrade_Firmware_On_SimulatedDevice()
         {
             //Arrange
+            Thread.Sleep(Constants.WAIT_TIME);
             this.Try_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -149,11 +136,13 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+
+            //Act
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations?template=default");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
+            
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
@@ -174,6 +163,7 @@ namespace DeviceSimulation
         public async void Should_Reboot_SimulatedDevice()
         {
             //Arrange
+            Thread.Sleep(Constants.WAIT_TIME);
             this.Try_Delete_Existing_Simulation();
             var simulation = JObject.Parse(@"{   
                 'Enabled': true, 
@@ -184,7 +174,9 @@ namespace DeviceSimulation
                     } 
                 ]
             }");
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+
+            //Act
+            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations?template=default");
             request.SetContent(simulation);
             var response = this.httpClient.PostAsync(request).Result;
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -257,21 +249,6 @@ namespace DeviceSimulation
 
         private string get_ETag_Of_Running_Simulation()
         {
-            this.Try_Delete_Existing_Simulation();
-            var simulation = JObject.Parse(@"{   
-                'Enabled': true, 
-                'DeviceModels': [   
-                    {   
-                        'Id': 'truck-01', 
-                        'Count': 5 
-                    } 
-                ]
-            }");
-            var createSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
-            createSimulationRequest.SetContent(simulation);
-            var createSimulationResponse = this.httpClient.PostAsync(createSimulationRequest).Result;
-            Assert.Equal(HttpStatusCode.OK, createSimulationResponse.StatusCode);
-
             var currentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
@@ -282,6 +259,7 @@ namespace DeviceSimulation
 
         private void Try_Delete_Existing_Simulation()
         {
+            this.Should_Start_Given_Simulation();
             var runningSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
             var runningSimulationResponse = this.httpClient.GetAsync(runningSimulationRequest).Result;
 
