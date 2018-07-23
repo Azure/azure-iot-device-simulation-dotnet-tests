@@ -39,7 +39,6 @@ namespace DeviceSimulation
         {
             // Act
             var request = new HttpRequest(Constants.DS_ADDRESS + "/status");
-            request.AddHeader("X-Foo", "Bar");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -53,7 +52,7 @@ namespace DeviceSimulation
             this.Should_Start_Given_Simulation();
 
             //Act
-            var getCurrentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
+            var getCurrentSimulationRequest = new HttpRequest(Constants.SIMULATION_URL);
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
             JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
 
@@ -81,7 +80,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, startSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
+            var verificationRequest = new HttpRequest(Constants.SIMULATION_URL);
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
@@ -107,7 +106,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, stopSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
+            var verificationRequest = new HttpRequest(Constants.SIMULATION_URL);
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
@@ -116,7 +115,7 @@ namespace DeviceSimulation
 
         private string get_ETag_Of_Running_Simulation()
         {
-            var currentSimulationRequest = new HttpRequest(Constants.DS_ADDRESS + "/simulations/1");
+            var currentSimulationRequest = new HttpRequest(Constants.SIMULATION_URL);
             var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
             JObject JsonResponse = JObject.Parse(currentSimulationResponse.Content);
