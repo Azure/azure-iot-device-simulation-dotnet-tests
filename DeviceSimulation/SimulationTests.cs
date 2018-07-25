@@ -40,13 +40,28 @@ namespace DeviceSimulation
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
+        public void Should_Return_All_Simulations()
+        {
+            //Arrange
+
+            //Act
+            var getSimulationsRequest = new HttpRequest(Constants.SIMULATIONS_URL);
+            var getSimulationsResponse = this.httpClient.GetAsync(getSimulationsRequest).Result;
+            JObject jsonResponse = JObject.Parse(getSimulationsResponse.Content);
+
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, getSimulationsResponse.StatusCode);
+            Assert.True(jsonResponse.Count > 0);
+        }
+
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Return_Currently_Running_Simulation()
         {
             //Arrange
             this.Should_Start_Given_Simulation();
 
             //Act
-            var getCurrentSimulationRequest = new HttpRequest(Constants.SIMULATION_URL);
+            var getCurrentSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
             JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
 
@@ -59,7 +74,7 @@ namespace DeviceSimulation
         public void Should_Start_Given_Simulation()
         {
             //Arrange
-            string ETag = this.get_ETag_Of_Running_Simulation();
+            string ETag = this.Get_ETag_Of_Running_Simulation();
 
             var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': true" + "}";
             var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
@@ -74,7 +89,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, startSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(Constants.SIMULATION_URL);
+            var verificationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
@@ -85,7 +100,7 @@ namespace DeviceSimulation
         public void Should_Stop_Given_Simulation()
         {
             //Arrange
-            string ETag = this.get_ETag_Of_Running_Simulation();
+            string ETag = this.Get_ETag_Of_Running_Simulation();
 
             var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': false" + "}";
             var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
@@ -100,26 +115,26 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, stopSimulationResponse.StatusCode);
 
-            var verificationRequest = new HttpRequest(Constants.SIMULATION_URL);
+            var verificationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
             JObject jsonResponse = JObject.Parse(verificationResponse.Content);
 
             Assert.False((bool)jsonResponse["Enabled"]);
         }
 
-        private string get_ETag_Of_Running_Simulation()
+        private string Get_ETag_Of_Running_Simulation()
         {
-            var currentSimulationRequest = new HttpRequest(Constants.SIMULATION_URL);
+            var currentSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var currentSimulationResponse = this.httpClient.GetAsync(currentSimulationRequest).Result;
             Assert.Equal(HttpStatusCode.OK, currentSimulationResponse.StatusCode);
-            JObject JsonResponse = JObject.Parse(currentSimulationResponse.Content);
+            JObject jsonResponse = JObject.Parse(currentSimulationResponse.Content);
 
-            return (string)JsonResponse["ETag"];
+            return (string)jsonResponse["ETag"];
         }
 
         public HttpWebRequest Create_Simulation_Request(byte[] simulationContentByteArray)
         {
-            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(Constants.SIMULATION_URL);
+            var startSimulationRequest = (HttpWebRequest)WebRequest.Create(Constants.DEFAULT_SIMULATION_URL);
             startSimulationRequest.Method = "PATCH";
             startSimulationRequest.ContentLength = simulationContentByteArray.Length;
             startSimulationRequest.ContentType = "application/json";
