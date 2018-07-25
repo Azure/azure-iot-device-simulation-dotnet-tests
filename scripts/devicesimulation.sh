@@ -69,7 +69,7 @@ stop() {
 if [[ "$1" == "start" ]]; then
     exit_if_running
     check_env_variables
-    # create_network
+    create_network
     start
     exit 0
 fi
