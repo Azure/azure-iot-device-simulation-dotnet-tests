@@ -10,7 +10,7 @@ fi
 DOCKER_IMAGE="azureiotpcs/device-simulation-dotnet:$DOCKER_TAG"
 DOCKER_PORT=9003
 DOCKER_NAME="device-simulation"
-DOCKER_NETWOK="integrationtests"
+DOCKER_NETWORK="integrationtests"
 
 APP_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )/"
 cd $APP_HOME
@@ -46,14 +46,14 @@ fail_if_not_running() {
 
 create_network() {
     set +e
-    docker network create $DOCKER_NETWOK 2> /dev/null
+    docker network create $DOCKER_NETWORK 2> /dev/null
     set -e
 }
 
 start() {
     docker pull $DOCKER_IMAGE
     header3 "Starting '$DOCKER_IMAGE'"
-    docker run --detach --network=$DOCKER_NETWOK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
+    docker run --detach --network=$DOCKER_NETWORK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
         --env-file $APP_HOME/scripts/env.list --rm --name $DOCKER_NAME $DOCKER_IMAGE
     sleep 1
     fail_if_not_running
@@ -69,7 +69,7 @@ stop() {
 if [[ "$1" == "start" ]]; then
     exit_if_running
     check_env_variables
-    create_network
+    # create_network
     start
     exit 0
 fi
