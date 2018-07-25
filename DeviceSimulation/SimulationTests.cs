@@ -1,15 +1,10 @@
 ﻿using System.IO;
 using System.Net;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Helpers;
 using Helpers.Http;
 using Microsoft.Azure.Devices;
-using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -23,7 +18,6 @@ namespace DeviceSimulation
         public SimulationTests()
         {
             var config = new ConfigurationBuilder()
-                .AddJsonFile("settings.json")
                 .AddEnvironmentVariables()
                 .Build();
             this.IOTHUB_CONNECTION_STRING = config["PCS_IOTHUB_CONNSTRING"];
@@ -122,8 +116,6 @@ namespace DeviceSimulation
 
             return (string)JsonResponse["ETag"];
         }
-
-        
 
         public HttpWebRequest Create_Simulation_Request(byte[] simulationContentByteArray)
         {
