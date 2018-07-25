@@ -47,10 +47,11 @@ namespace DeviceSimulation
             //Act
             var getSimulationsRequest = new HttpRequest(Constants.SIMULATIONS_URL);
             var getSimulationsResponse = this.httpClient.GetAsync(getSimulationsRequest).Result;
-            JObject jsonResponse = JObject.Parse(getSimulationsResponse.Content);
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, getSimulationsResponse.StatusCode);
+
+            JObject jsonResponse = JObject.Parse(getSimulationsResponse.Content);
             Assert.True(jsonResponse.Count > 0);
         }
 
@@ -63,10 +64,11 @@ namespace DeviceSimulation
             //Act
             var getCurrentSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
-            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
+
+            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
             Assert.True((bool)jsonResponse["Enabled"]);
         }
 
