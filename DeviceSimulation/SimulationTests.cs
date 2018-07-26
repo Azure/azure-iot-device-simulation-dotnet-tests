@@ -3,13 +3,11 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Helpers;
 using Helpers.Http;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -18,7 +16,6 @@ namespace DeviceSimulation
     public class SimulationTests
     {
         private readonly IHttpClient httpClient;
-        private readonly RegistryManager registry;
         private readonly string IOTHUB_CONNECTION_STRING;
         public SimulationTests()
         {
