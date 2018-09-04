@@ -114,9 +114,7 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
-                    ConnectionString: 'default'
-                }
+                'IoTHubs': []
             }");
             var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
             request.AddHeader("Content-Type", "application/json");
@@ -308,9 +306,9 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'default'
-                }
+                }]
             }");
 
             var invalidTimeFormat = JObject.Parse(@"{  
@@ -325,9 +323,9 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'default'
-                }
+                }]
             }");
 
             // Act
@@ -352,9 +350,9 @@ namespace DeviceSimulation
                 'Enabled': false,
                 'Name': 'simulation test',
                 'DeviceModels': [],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'default'
-                }
+                }]
             }");
 
             var totalDeviceCountIsZero = JObject.Parse(@"{  
@@ -371,9 +369,9 @@ namespace DeviceSimulation
                         'Count': 0
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'default'
-                }
+                }]
             }");
 
             // Act
@@ -403,9 +401,9 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'invalid string'
-                }
+                }]
             }");
 
             // Act
@@ -428,13 +426,13 @@ namespace DeviceSimulation
                 'Name': 'simulation test',
                 'DeviceModels': [  
                     {  
-                        'Id': 'model_1',
-                        'Count': 150
+                        'Id': 'chiller-01',
+                        'Count': 1
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [{
                     ConnectionString: 'default'
-                }
+                }]
             }");
             IHttpResponse postResponse = this.CreateSimulation(simulation);
             JObject postJsonResponse = JObject.Parse(postResponse.Content);
@@ -588,7 +586,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Thread.Sleep(Constants.WAIT_TIME);
-            RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            RegistryManager registry = RegistryManager.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
             Assert.True(deviceTwin != null);
             Assert.True(deviceTwin.Tags["IsSimulated"] == 'Y');
@@ -619,9 +617,9 @@ namespace DeviceSimulation
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
-            RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            RegistryManager registry = RegistryManager.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
-            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Task<CloudToDeviceMethodResult> firmwareUpgradeMethodResult = serviceClient.InvokeDeviceMethodAsync("truck-01.0",
                 new CloudToDeviceMethod("FirmwareUpdate"));
             Thread.Sleep(Constants.WAIT_TIME);
@@ -657,7 +655,7 @@ namespace DeviceSimulation
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
-            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Task<CloudToDeviceMethodResult> rebootMethodResult = serviceClient.InvokeDeviceMethodAsync("chiller-01.0",
                 new CloudToDeviceMethod("Reboot"));
             CloudToDeviceMethodResult rebootResponse = await rebootMethodResult.ConfigureAwait(false);
@@ -671,7 +669,7 @@ namespace DeviceSimulation
         private void Try_Delete_Existing_Simulation()
         {
             this.Should_Start_Given_Simulation();
-            var runningSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL );
+            var runningSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
             var runningSimulationResponse = this.httpClient.GetAsync(runningSimulationRequest).Result;
 
             //delete current simulation only if it exists
