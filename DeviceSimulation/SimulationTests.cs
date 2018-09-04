@@ -45,11 +45,11 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should return a list of simulations
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Get_A_List_Of_Simulations()
         {
             // Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL);
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -67,7 +67,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should return default simulation
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Get_Default_Simulation()
         {
             // Arrange
@@ -100,7 +100,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to create a simulation
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Create_A_Simulation()
         {
             // Arrage
@@ -118,7 +118,7 @@ namespace DeviceSimulation
                     ConnectionString: 'default'
                 }
             }");
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL);
             request.AddHeader("Content-Type", "application/json");
             request.SetContent(simulation);
 
@@ -151,7 +151,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to retrieve a simulation by id
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Get_A_Simulation_By_Id()
         {
             // Arrage
@@ -174,7 +174,7 @@ namespace DeviceSimulation
             string id = (string)postJsonResponse["Id"];
 
             // Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + $"/simulations/{id}");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -194,7 +194,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to upsert a simulation by id
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Upsert_A_Simulation_By_Id()
         {
             // Arrage
@@ -232,7 +232,7 @@ namespace DeviceSimulation
             JObject upsertJsonResponse = JObject.Parse(postResponse.Content);
 
             // Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + $"/simulations/{id}");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
             var response = this.httpClient.GetAsync(request).Result;
 
             // Assert
@@ -253,7 +253,7 @@ namespace DeviceSimulation
         /// Simulation service should return Conflict when etag doesn't match 
         /// in upserting a simulation
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Return_Conflict_When_ETag_Does_Not_Match_In_Upserting()
         {
             // Arrage
@@ -279,7 +279,7 @@ namespace DeviceSimulation
             JObject upsertJsonResponse = JObject.Parse(postResponse.Content);
 
             // Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + $"/simulations/{id}");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
             request.AddHeader("Content-Type", "application/json");
             request.SetContent(simulation);
             var response = this.httpClient.PutAsync(request).Result;
@@ -292,7 +292,7 @@ namespace DeviceSimulation
         /// Simulation service should return bad request when failed to provide
         /// valid start time and end time
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Return_Badrequest_With_Invalid_StartTime_And_EndTime()
         {
             // Arrage
@@ -343,7 +343,7 @@ namespace DeviceSimulation
         /// Simulation service should return bad request when failed to provide
         /// valid device models
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Return_Badrequest_With_Invalid_DeviceModels()
         {
             // Arrage
@@ -389,7 +389,7 @@ namespace DeviceSimulation
         /// Simulation service should return bad request when failed to provide
         /// valid iothub
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Return_Badrequest_With_Invalid_IotHub()
         {
             // Arrage
@@ -418,7 +418,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to delete a simulation by id
         /// </summary>
-        [Fact]
+        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Delete_A_Simulation_By_Id()
         {
             // Arrage
@@ -441,7 +441,7 @@ namespace DeviceSimulation
             string id = (string)postJsonResponse["Id"];
 
             // Act
-            var request = new HttpRequest(Constants.DS_ADDRESS + $"/simulations/{id}");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
             var response = this.httpClient.DeleteAsync(request).Result;
 
             // Assert
@@ -588,7 +588,7 @@ namespace DeviceSimulation
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Thread.Sleep(Constants.WAIT_TIME);
-            RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            RegistryManager registry = RegistryManager.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
             Assert.True(deviceTwin != null);
             Assert.True(deviceTwin.Tags["IsSimulated"] == 'Y');
@@ -619,9 +619,9 @@ namespace DeviceSimulation
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
-            RegistryManager registry = RegistryManager.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            RegistryManager registry = RegistryManager.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Twin deviceTwin = await registry.GetTwinAsync("truck-01.0");
-            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Task<CloudToDeviceMethodResult> firmwareUpgradeMethodResult = serviceClient.InvokeDeviceMethodAsync("truck-01.0",
                 new CloudToDeviceMethod("FirmwareUpdate"));
             Thread.Sleep(Constants.WAIT_TIME);
@@ -657,7 +657,7 @@ namespace DeviceSimulation
             Thread.Sleep(Constants.WAIT_TIME);
 
             //Act
-            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(IOTHUB_CONNECTION_STRING);
+            ServiceClient serviceClient = ServiceClient.CreateFromConnectionString(this.IOTHUB_CONNECTION_STRING);
             Task<CloudToDeviceMethodResult> rebootMethodResult = serviceClient.InvokeDeviceMethodAsync("chiller-01.0",
                 new CloudToDeviceMethod("Reboot"));
             CloudToDeviceMethodResult rebootResponse = await rebootMethodResult.ConfigureAwait(false);
