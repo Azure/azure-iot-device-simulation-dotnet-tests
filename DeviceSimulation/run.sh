@@ -43,8 +43,8 @@ run_tests() {
 }
 
 #Script options  
-tag="testing"
-dockeraccount="azureiotpcs"
+tag="staging"
+dockeraccount="azureiotpcsdev"
 
 set_up() {
     export DOCKER_TAG=$tag
