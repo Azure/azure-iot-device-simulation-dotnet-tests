@@ -4,7 +4,7 @@
 set -e
 
 if [[ "$DOCKER_TAG" == "" ]]; then
-    export DOCKER_TAG=testing
+    export DOCKER_TAG=staging
 fi
 
 DOCKER_IMAGE="$DOCKER_ACCOUNT/pcs-storage-adapter-dotnet:$DOCKER_TAG"

@@ -18,9 +18,9 @@ stop() {
 
 #Script Args
 repo=""
-tag="testing"
+tag="staging"
 act="start"
-dockeraccount="azureiotpcs"
+dockeraccount="azureiotpcsdev"
 
 set_up_env() {
     export DOCKER_TAG=$tag

@@ -10,8 +10,8 @@ source "$APP_HOME/scripts/.functions.sh"
 
 #Script Args
 repo=both
-tag="testing"
-dockeraccount="azureiotpcs"
+tag="staging"
+dockeraccount="azureiotpcsdev"
 
 run_tests() {
 
