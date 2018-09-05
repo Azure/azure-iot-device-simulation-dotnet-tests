@@ -94,7 +94,6 @@ namespace DeviceSimulation
             Assert.Equal(DEFAULT_SIMULATION_ID, id);
             Assert.False(string.IsNullOrEmpty(etag));
             Assert.True(jDeviceModels.HasValues);
-            Assert.False(enabled);
         }
 
         /// <summary>
