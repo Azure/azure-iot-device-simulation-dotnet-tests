@@ -459,23 +459,6 @@ namespace DeviceSimulation
         }
 
         [Fact, Trait("Type", "IntegrationTest")]
-        public void Should_Return_Currently_Running_Simulation()
-        {
-            //Arrange
-            this.Should_Start_Given_Simulation();
-
-            //Act
-            var getCurrentSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
-            var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
-
-            //Assert
-            Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
-
-            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
-            Assert.True((bool)jsonResponse["Enabled"]);
-        }
-
-        [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Stop_Given_Simulation()
         {
             //Arrange
