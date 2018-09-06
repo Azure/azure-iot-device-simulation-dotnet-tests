@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{1968
 	ProjectSection(SolutionItems) = preProject
 		scripts\.functions.sh = scripts\.functions.sh
 		scripts\build = scripts\build
+		scripts\containers.sh = scripts\containers.sh
 		scripts\devicesimulation.sh = scripts\devicesimulation.sh
 		scripts\env.list = scripts\env.list
 		scripts\storageadapter.sh = scripts\storageadapter.sh

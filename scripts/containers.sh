@@ -17,7 +17,6 @@ stop() {
 }
 
 #Script Args
-repo=""
 tag="staging"
 act="start"
 dockeraccount="azureiotpcsdev"
