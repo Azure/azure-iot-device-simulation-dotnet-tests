@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using Helpers;
 using Helpers.Http;
 using Newtonsoft.Json.Linq;
@@ -194,8 +196,8 @@ namespace DeviceSimulation
                 'Name': 'simulation test',
                 'DeviceModels': [  
                     {  
-                        'Id': 'model_1',
-                        'Count': 150
+                        'Id': 'chiller-01',
+                        'Count': 1
                     }
                 ],
                 'IoTHub': {
@@ -213,8 +215,8 @@ namespace DeviceSimulation
             simulation["EndTime"] = "NOW+PT2H";
             simulation["DeviceModels"] = @"[  
                 {
-                    'Id': 'model_2',
-                    'Count': 250
+                    'Id': chiller-02',
+                    'Count': 1
                 }
             ]";
 
@@ -429,6 +431,8 @@ namespace DeviceSimulation
             IHttpResponse postResponse = this.CreateSimulation(simulation);
             JObject postJsonResponse = JObject.Parse(postResponse.Content);
             string id = (string)postJsonResponse["Id"];
+            
+            Thread.Sleep(Constants.WAIT_TIME);
 
             // Act
             var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
@@ -468,32 +472,6 @@ namespace DeviceSimulation
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
 
             JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
-            Assert.True((bool)jsonResponse["Enabled"]);
-        }
-
-        [Fact, Trait("Type", "IntegrationTest")]
-        public void Should_Start_Given_Simulation()
-        {
-            //Arrange
-            string ETag = this.Get_ETag_Of_Running_Simulation();
-
-            var simulationContent = "{" + $"'ETag': '{ETag}' ,'Enabled': true" + "}";
-            var simulationContentByteArray = Encoding.ASCII.GetBytes(simulationContent);
-
-            //Act
-            HttpWebRequest startSimulationRequest = this.Create_Simulation_Request(simulationContentByteArray);
-            Stream dataStream = startSimulationRequest.GetRequestStream();
-            dataStream.Write(simulationContentByteArray, 0, simulationContentByteArray.Length);
-            dataStream.Close();
-            var startSimulationResponse = (HttpWebResponse)startSimulationRequest.GetResponse();
-
-            //Assert
-            Assert.Equal(HttpStatusCode.OK, startSimulationResponse.StatusCode);
-
-            var verificationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
-            var verificationResponse = this.httpClient.GetAsync(verificationRequest).Result;
-            JObject jsonResponse = JObject.Parse(verificationResponse.Content);
-
             Assert.True((bool)jsonResponse["Enabled"]);
         }
 
