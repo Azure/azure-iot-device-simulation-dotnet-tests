@@ -410,17 +410,16 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to delete a simulation by id
         /// </summary>
-        [Fact, Trait("Type", "IntegrationTest")]
+        [Fact(Skip = "delete devices"), Trait("Type", "IntegrationTest")]
         public void Should_Delete_A_Simulation_By_Id()
         {
             // Arrage
-            var simulation = JObject.Parse(@"{  
-                'ETag': 'etag',
+            var simulation = JObject.Parse(@"{
                 'Enabled': false,
                 'Name': 'simulation test',
                 'DeviceModels': [  
                     {  
-                        'Id': 'chiller-01',
+                        'Id': 'engine-01',
                         'Count': 1
                     }
                 ],
@@ -513,8 +512,6 @@ namespace DeviceSimulation
             Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
             Assert.True((bool)jsonResponse["Enabled"]);
         }
-
-
 
         private string Get_ETag_Of_Running_Simulation()
         {
