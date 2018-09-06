@@ -3,7 +3,7 @@
 # Note: Windows Bash doesn't support shebang extra params
 set -e
 
-TEST_SUITE=$1
+TEST_SUITE="Storage Adapter tests"
 
 TEST_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
 APP_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )/"
@@ -79,12 +79,10 @@ header "Running $TEST_SUITE"
 #### Set Up Tests
 set_up
 
-#### Run Tests
+#### Run tests based on repo
 run
 
 #### Tear down test
 tear_down
-
-header "$TEST_SUITE Finished"
 
 set +e

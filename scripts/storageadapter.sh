@@ -3,6 +3,10 @@
 # Note: Windows Bash doesn't support shebang extra params
 set -e
 
+if [[ "$DOCKER_ACCOUNT" == "" ]]; then
+    export DOCKER_ACCOUNT=azureiotpcsdev
+fi
+
 if [[ "$DOCKER_TAG" == "" ]]; then
     export DOCKER_TAG=staging
 fi
@@ -51,11 +55,12 @@ create_network() {
 }
 
 start() {
+    header3 "Pulling '$DOCKER_IMAGE'"
+    sleep 15
     docker pull $DOCKER_IMAGE
     header3 "Starting '$DOCKER_IMAGE'"
     docker run --detach --network=$DOCKER_NETWORK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
         --env-file $APP_HOME/scripts/env.list --rm --name $DOCKER_NAME $DOCKER_IMAGE
-    sleep 1
     fail_if_not_running
 }
 
