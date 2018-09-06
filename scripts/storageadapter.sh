@@ -55,11 +55,11 @@ create_network() {
 }
 
 start() {
-    header3 "Pulling '$DOCKER_IMAGE'"
     docker pull $DOCKER_IMAGE
     header3 "Starting '$DOCKER_IMAGE'"
     docker run --detach --network=$DOCKER_NETWORK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
         --env-file $APP_HOME/scripts/env.list --rm --name $DOCKER_NAME $DOCKER_IMAGE
+    sleep 1
     fail_if_not_running
 }
 
