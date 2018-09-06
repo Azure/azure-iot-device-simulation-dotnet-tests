@@ -3,7 +3,7 @@
 # Note: Windows Bash doesn't support shebang extra params
 set -e
 
-TEST_SUITE=$1
+TEST_SUITE="Storage Adapter tests"
 
 TEST_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/"
 APP_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )/"
@@ -40,14 +40,49 @@ run_tests() {
     find . -name *.csproj | xargs dotnet test --configuration Release
 }
 
+#Script options  
+tag="staging"
+dockeraccount="azureiotpcsdev"
+
+set_up() {
+    export DOCKER_TAG=$tag
+    export DOCKER_ACCOUNT=$dockeraccount
+    check_dependency_docker
+    check_dependency_dotnet
+}
+
+run() {
+    start_containers
+    run_tests
+    stop_containers
+}
+
+tear_down() {
+    unset DOCKER_TAG
+    unset DOCKER_ACCOUNT
+}
+
+#### Parse script arguments
+while [[ $# -gt 0 ]] ;
+do
+    opt=$1;
+    shift;
+    case $opt in
+        -t|--tag) tag=$1; shift;;
+        -da|--docker-account) dockeraccount=$1; shift;; 
+        *)  shift;;
+    esac
+done
+
 header "Running $TEST_SUITE"
 
-check_dependency_docker
-check_dependency_dotnet
+#### Set Up Tests
+set_up
 
-start_containers
+#### Run tests based on repo
+run
 
-run_tests
-stop_containers
+#### Tear down test
+tear_down
 
 set +e

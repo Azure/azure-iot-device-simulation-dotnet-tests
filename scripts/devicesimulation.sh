@@ -3,14 +3,18 @@
 # Note: Windows Bash doesn't support shebang extra params
 set -e
 
-if [[ "$DOCKER_TAG" == "" ]]; then
-    export DOCKER_TAG=testing
+if [[ "$DOCKER_ACCOUNT" == "" ]]; then
+    export DOCKER_ACCOUNT=azureiotpcsdev
 fi
 
-DOCKER_IMAGE="azureiotpcs/device-simulation-dotnet:$DOCKER_TAG"
+if [[ "$DOCKER_TAG" == "" ]]; then
+    export DOCKER_TAG=staging
+fi
+
+DOCKER_IMAGE="$DOCKER_ACCOUNT/device-simulation-dotnet:$DOCKER_TAG"
 DOCKER_PORT=9003
 DOCKER_NAME="device-simulation"
-DOCKER_NETWORK="integrationtests"
+DOCKER_NETWOK="integrationtests"
 
 APP_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )/"
 cd $APP_HOME
@@ -46,14 +50,14 @@ fail_if_not_running() {
 
 create_network() {
     set +e
-    docker network create $DOCKER_NETWORK 2> /dev/null
+    docker network create $DOCKER_NETWOK 2> /dev/null
     set -e
 }
 
 start() {
     docker pull $DOCKER_IMAGE
     header3 "Starting '$DOCKER_IMAGE'"
-    docker run --detach --network=$DOCKER_NETWORK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
+    docker run --detach --network=$DOCKER_NETWOK -p 127.0.0.1:$DOCKER_PORT:$DOCKER_PORT \
         --env-file $APP_HOME/scripts/env.list --rm --name $DOCKER_NAME $DOCKER_IMAGE
     sleep 1
     fail_if_not_running

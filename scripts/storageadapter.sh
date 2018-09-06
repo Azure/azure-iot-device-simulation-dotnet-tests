@@ -3,11 +3,15 @@
 # Note: Windows Bash doesn't support shebang extra params
 set -e
 
-if [[ "$DOCKER_TAG" == "" ]]; then
-    export DOCKER_TAG=testing
+if [[ "$DOCKER_ACCOUNT" == "" ]]; then
+    export DOCKER_ACCOUNT=azureiotpcsdev
 fi
 
-DOCKER_IMAGE="azureiotpcs/pcs-storage-adapter-dotnet:$DOCKER_TAG"
+if [[ "$DOCKER_TAG" == "" ]]; then
+    export DOCKER_TAG=staging
+fi
+
+DOCKER_IMAGE="$DOCKER_ACCOUNT/pcs-storage-adapter-dotnet:$DOCKER_TAG"
 DOCKER_PORT=9022
 DOCKER_NAME="storage-adapter"
 DOCKER_NETWORK="integrationtests"

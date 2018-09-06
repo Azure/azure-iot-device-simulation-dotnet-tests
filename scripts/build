@@ -8,14 +8,30 @@ cd $APP_HOME
 
 source "$APP_HOME/scripts/.functions.sh"
 
-if [[ "$1" != "" ]]; then
-    export DOCKER_TAG=testing
-fi
+#Script Args
+tag="staging"
+dockeraccount="azureiotpcsdev"
 
-echo "The repo name is: " $2
+run_tests() {
 
-./StorageAdapter/run.sh "Storage Adapter Tests"
+    header2 "Now Running $repo tests"
 
-./DeviceSimulation/run.sh "Device Simulation Tests"
+    ./StorageAdapter/run.sh "Storage Adapter Tests" -t $tag -da $dockeraccount
+
+    ./DeviceSimulation/run.sh "Device Simulation Tests" -t $tag -da $dockeraccount
+}
+
+while [[ $# -gt 0 ]] ;
+do
+    opt=$1;
+    shift;	
+    case $opt in
+      -dt|--dockertag) tag=$1; shift;;
+        -da|--docker-account) dockeraccount=$1; shift;; 
+        *) shift;
+    esac
+done
+
+run_tests
 
 set +e
