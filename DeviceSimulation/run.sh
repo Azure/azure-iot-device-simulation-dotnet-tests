@@ -39,7 +39,7 @@ run_tests() {
 
     header2 "$TEST_SUITE - Running tests..."
     cd $TEST_HOME
-    find . -name *.csproj | xargs dotnet test --configuration Release -parallel none
+    find . -name *.csproj | xargs dotnet test --configuration Release -p:ParallelizeTestCollections=false
 }
 
 #Script options  
