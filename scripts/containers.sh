@@ -16,12 +16,43 @@ stop() {
     ./scripts/devicesimulation.sh stop
 }
 
-if [[ "$1" == "start" ]]; then
+#Script Args
+tag="staging"
+act="start"
+dockeraccount="azureiotpcsdev"
+
+set_up_env() {
+    export DOCKER_TAG=$tag
+    export DOCKER_ACCOUNT=$dockeraccount
+}
+
+tear_down() {
+    unset DOCKER_TAG
+    unset DOCKER_ACCOUNT
+}
+
+while [[ $# -gt 0 ]] ;
+do
+    opt=$1;
+    shift;	
+    case $opt in
+        -dt|--dockertag) tag=$1; shift;;
+        -act|--action) act=$1; shift;;
+        -da|--docker-account) dockeraccount=$1; shift;; 
+        *) shift;
+    esac
+done
+
+set_up_env
+
+if [[ "$act" == "start" ]]; then
     start
     exit 0
 fi
 
-if [[ "$1" == "stop" ]]; then
+if [[ "$act" == "stop" ]]; then
     stop
     exit 0
 fi
+
+tear_down
