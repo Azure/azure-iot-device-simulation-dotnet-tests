@@ -433,7 +433,7 @@ namespace DeviceSimulation
         /// <summary>
         /// Simulation service should able to delete a simulation by id
         /// </summary>
-        [Fact, Trait("Type", "IntegrationTest")]
+        [Fact(Skip = "delete devices"), Trait("Type", "IntegrationTest")]
         public void Should_Delete_A_Simulation_By_Id()
         {
             // Arrage
