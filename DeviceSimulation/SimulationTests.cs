@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -102,13 +102,17 @@ namespace DeviceSimulation
                 'ETag': 'etag',
                 'Enabled': false,
                 'Name': 'simulation test',
-                'DeviceModels': [  
+                'DeviceModels': [
                     {  
                         'Id': 'model_1',
                         'Count': 150
                     }
                 ],
-                'IoTHubs': []
+                'IoTHubs': [
+                  {
+                    'ConnectionString': 'default'
+                  }
+                ]
             }");
             var request = new HttpRequest(Constants.SIMULATIONS_URL);
             request.AddHeader("Content-Type", "application/json");
@@ -128,10 +132,14 @@ namespace DeviceSimulation
             {
                 JProperty targetProp = jsonResponse.Property(sourceProperty.Key);
 
-                if ((string)sourceProperty.Key == "ETag")
+                if (sourceProperty.Key == "ETag")
                 {
                     // The Etag will be changed with success upsert/insert
                     Assert.False(JToken.DeepEquals(sourceProperty.Value, targetProp.Value));
+                }
+                else if (sourceProperty.Key == "IoTHubs")
+                {
+                    Assert.True(targetProp.Value.Children().Count() == 1);
                 }
                 else
                 {
@@ -151,15 +159,17 @@ namespace DeviceSimulation
                 'ETag': 'etag',
                 'Enabled': false,
                 'Name': 'simulation test',
-                'DeviceModels': [  
-                    {  
+                'DeviceModels': [
+                    {
                         'Id': 'model_1',
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
-                    ConnectionString: 'default'
-                }
+                'IoTHubs': [
+                  {
+                    'ConnectionString': 'default'
+                  }
+                ]
             }");
             IHttpResponse postResponse = this.CreateSimulation(simulation);
             JObject postJsonResponse = JObject.Parse(postResponse.Content);
@@ -195,49 +205,56 @@ namespace DeviceSimulation
                 'Enabled': false,
                 'Name': 'simulation test',
                 'DeviceModels': [  
-                    {  
+                    {
                         'Id': 'chiller-01',
                         'Count': 1
                     }
                 ],
-                'IoTHub': {
+                'IoTHubs': [
+                  {
                     ConnectionString: 'default'
-                }
+                  }
+                ]
             }");
             IHttpResponse postResponse = this.CreateSimulation(simulation);
             JObject postJsonResponse = JObject.Parse(postResponse.Content);
             string id = (string)postJsonResponse["Id"];
+            string eTag = (string)postJsonResponse["ETag"];
 
             // Update simulation
-            simulation["ETag"] = (string)postJsonResponse["ETag"];
-            simulation["Name"] = "Updated Name";
-            simulation["StartTime"] = "NOW";
-            simulation["EndTime"] = "NOW+PT2H";
-            simulation["DeviceModels"] = @"[  
-                {
-                    'Id': chiller-02',
-                    'Count': 1
-                }
-            ]";
 
-            IHttpResponse upsertResponse = this.CreateSimulation(simulation);
-            JObject upsertJsonResponse = JObject.Parse(postResponse.Content);
+            var upsertSimulation = JObject.Parse(@"{  
+                'Enabled': false,
+                'Name': 'simulation test updated',
+                'DeviceModels': [  
+                    {
+                        'Id': 'chiller-02',
+                        'Count': 2
+                    }
+                ],
+                'IoTHubs': [
+                  {
+                    ConnectionString: 'default'
+                  }
+                ]
+            }");
+            upsertSimulation["ETag"] = eTag;
 
-            // Act
-            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
-            var response = this.httpClient.GetAsync(request).Result;
+            IHttpResponse upsertResponse = this.UpsertSimulation(id, upsertSimulation);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, upsertResponse.StatusCode);
 
-            JObject jsonResponse = JObject.Parse(response.Content);
-
+            JObject jsonResponse = JObject.Parse(upsertResponse.Content);
             Assert.True(jsonResponse.HasValues);
 
-            foreach (KeyValuePair<string, JToken> sourceProperty in upsertJsonResponse)
+            foreach (KeyValuePair<string, JToken> sourceProperty in upsertSimulation)
             {
-                JProperty targetProp = jsonResponse.Property(sourceProperty.Key);
-                Assert.True(JToken.DeepEquals(sourceProperty.Value, targetProp.Value));
+                if (sourceProperty.Key != "IoTHubs" && sourceProperty.Key != "ETag")
+                {
+                    JProperty targetProp = jsonResponse.Property(sourceProperty.Key);
+                    Assert.True(JToken.DeepEquals(sourceProperty.Value, targetProp.Value));
+                }
             }
         }
 
@@ -253,15 +270,17 @@ namespace DeviceSimulation
                 'ETag': 'etag',
                 'Enabled': false,
                 'Name': 'simulation test',
-                'DeviceModels': [  
-                    {  
+                'DeviceModels': [
+                    {
                         'Id': 'model_1',
                         'Count': 150
                     }
                 ],
-                'IoTHub': {
-                    ConnectionString: 'default'
-                }
+                'IoTHubs': [
+                  {
+                    'ConnectionString': 'default'
+                  }
+                ]
             }");
             IHttpResponse postResponse = this.CreateSimulation(simulation);
             JObject postJsonResponse = JObject.Parse(postResponse.Content);
@@ -300,9 +319,11 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHubs': [{
+                'IoTHubs': [
+                  {
                     ConnectionString: 'default'
-                }]
+                  }
+                ]
             }");
 
             var invalidTimeFormat = JObject.Parse(@"{  
@@ -317,9 +338,11 @@ namespace DeviceSimulation
                         'Count': 150
                     }
                 ],
-                'IoTHubs': [{
+                'IoTHubs': [
+                  {
                     ConnectionString: 'default'
-                }]
+                  }
+                ]
             }");
 
             // Act
@@ -486,31 +509,25 @@ namespace DeviceSimulation
         [Fact, Trait("Type", "IntegrationTest")]
         public void Should_Create_Default_Simulation()
         {
-            //Arrange
-            var simulation = JObject.Parse(@"{   
-                'Enabled': true, 
-                'DeviceModels': [   
-                    {   
-                        'Id': 'truck-01', 
-                        'Count': 5 
-                    } 
-                ]
-            }");
-
             //Act
             var request = new HttpRequest(Constants.SIMULATIONS_URL + "?template=default");
-            request.SetContent(simulation);
+            request.SetContent("");
             var response = this.httpClient.PostAsync(request).Result;
 
             //Assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var getCurrentSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
-            var getCurrentSimulationResponse = this.httpClient.GetAsync(getCurrentSimulationRequest).Result;
-            JObject jsonResponse = JObject.Parse(getCurrentSimulationResponse.Content);
+            var getDefaultSimulationRequest = new HttpRequest(Constants.DEFAULT_SIMULATION_URL);
+            var getDefaultSimulationResponse = this.httpClient.GetAsync(getDefaultSimulationRequest).Result;
 
-            Assert.Equal(HttpStatusCode.OK, getCurrentSimulationResponse.StatusCode);
-            Assert.True((bool)jsonResponse["Enabled"]);
+            Assert.Equal(HttpStatusCode.OK, getDefaultSimulationResponse.StatusCode);
+            JObject defaultSimulationResponse = JObject.Parse(getDefaultSimulationResponse.Content);
+
+            foreach (KeyValuePair<string, JToken> sourceProperty in defaultSimulationResponse)
+            {
+                JProperty targetProp = defaultSimulationResponse.Property(sourceProperty.Key);
+                Assert.True(JToken.DeepEquals(sourceProperty.Value, targetProp.Value));
+            }
         }
 
         private string Get_ETag_Of_Running_Simulation()
@@ -535,10 +552,19 @@ namespace DeviceSimulation
         private IHttpResponse CreateSimulation(JObject simulation)
         {
 
-            var request = new HttpRequest(Constants.DS_ADDRESS + "/simulations");
+            var request = new HttpRequest(Constants.SIMULATIONS_URL);
             request.SetContent(simulation);
 
             return this.httpClient.PostAsync(request).Result;
+        }
+
+        private IHttpResponse UpsertSimulation(string id, JObject simulation)
+        {
+
+            var request = new HttpRequest(Constants.SIMULATIONS_URL + $"/{id}");
+            request.SetContent(simulation);
+
+            return this.httpClient.PutAsync(request).Result;
         }
     }
 }
